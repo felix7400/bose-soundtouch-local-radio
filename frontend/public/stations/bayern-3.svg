@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="BAYERN 3">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ef6c00"/><stop offset="1" stop-color="#ffd06a"/></linearGradient></defs>
+  <rect width="400" height="400" rx="92" fill="url(#g)"/>
+  <circle cx="304" cy="96" r="64" fill="#fff" opacity=".22"/>
+  <text x="50" y="188" fill="#fff" font-family="Arial, sans-serif" font-size="58" font-weight="900">BAYERN</text>
+  <text x="52" y="284" fill="#fff" font-family="Arial, sans-serif" font-size="116" font-weight="900">3</text>
+</svg>
+

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="ROCK ANTENNE">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#111"/><stop offset="1" stop-color="#d92525"/></linearGradient></defs>
+  <rect width="400" height="400" rx="92" fill="url(#g)"/>
+  <path d="M68 276l74-164 52 106 38-72 92 130" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>
+  <text x="48" y="174" fill="#fff" font-family="Arial, sans-serif" font-size="58" font-weight="900">ROCK</text>
+  <text x="50" y="226" fill="#ffd8d8" font-family="Arial, sans-serif" font-size="36" font-weight="800">ANTENNE</text>
+</svg>
+

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="1LIVE">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#62b900"/><stop offset="1" stop-color="#c6ee46"/></linearGradient></defs>
+  <rect width="400" height="400" rx="92" fill="url(#g)"/>
+  <circle cx="88" cy="98" r="54" fill="#fff" opacity=".2"/>
+  <text x="50" y="220" fill="#fff" font-family="Arial, sans-serif" font-size="96" font-weight="900">1LIVE</text>
+  <text x="54" y="268" fill="#eefbd6" font-family="Arial, sans-serif" font-size="30" font-weight="800">Pop</text>
+</svg>
+

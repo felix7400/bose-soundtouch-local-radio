@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Deutschlandfunk">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#081a35"/><stop offset="1" stop-color="#1f5fbf"/></linearGradient></defs>
+  <rect width="400" height="400" rx="92" fill="url(#g)"/>
+  <circle cx="306" cy="92" r="58" fill="#fff" opacity=".18"/>
+  <text x="48" y="198" fill="#fff" font-family="Arial, sans-serif" font-size="82" font-weight="800">DLF</text>
+  <text x="50" y="254" fill="#d9e8ff" font-family="Arial, sans-serif" font-size="32" font-weight="700">Deutschlandfunk</text>
+</svg>
+

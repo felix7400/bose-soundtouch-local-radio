@@ -1,0 +1,16 @@
+[Unit]
+Description=SoundTouch Local Controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/soundtouch-local-radio
+EnvironmentFile=/home/pi/soundtouch-local-radio/.env
+ExecStart=/home/pi/soundtouch-local-radio/.venv/bin/uvicorn app.main:app --app-dir backend --host ${APP_HOST} --port ${APP_PORT}
+Restart=on-failure
+RestartSec=5
+User=pi
+
+[Install]
+WantedBy=multi-user.target
