@@ -52,10 +52,10 @@ Restart `scripts/run_app.sh`.
 
 ```bash
 APP_AUTH_USERNAME=admin
-APP_AUTH_PASSWORD=choose-a-local-password
+APP_AUTH_PASSWORD=
 ```
 
-The radio stream proxy remains unauthenticated because the speaker must fetch stream URLs directly. Keep the app on your private LAN.
+Set `APP_AUTH_PASSWORD` to a local password and restart the app if you want Basic Auth. The radio stream proxy remains unauthenticated because the speaker must fetch stream URLs directly. Keep the app on your private LAN.
 
 ## Raspberry Pi systemd
 

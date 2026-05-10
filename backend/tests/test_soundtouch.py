@@ -27,7 +27,7 @@ def test_parse_volume_response():
 def test_station_content_item_uses_local_radio_source():
     xml = _content_item_xml(
         source="LOCAL_INTERNET_RADIO",
-        stream_url="http://192.168.1.10:8000/stream/example",
+        stream_url="http://192.0.2.10:8000/stream/example",
         station_name="Local Test",
         logo_url="http://example.test/logo.png",
         item_type="stationurl",
@@ -50,7 +50,7 @@ def test_preset_xml_uses_local_internet_radio_descriptor():
     xml = _preset_xml(
         preset_id=1,
         source="LOCAL_INTERNET_RADIO",
-        location_url="http://192.168.1.10:8000/bose/stations/bayern-1.json",
+        location_url="http://192.0.2.10:8000/bose/stations/bayern-1.json",
         station_name="BAYERN 1",
         logo_url=None,
     )
@@ -58,7 +58,7 @@ def test_preset_xml_uses_local_internet_radio_descriptor():
     assert '<preset id="1">' in xml
     assert 'source="LOCAL_INTERNET_RADIO"' in xml
     assert 'type="stationurl"' in xml
-    assert 'location="http://192.168.1.10:8000/bose/stations/bayern-1.json"' in xml
+    assert 'location="http://192.0.2.10:8000/bose/stations/bayern-1.json"' in xml
     assert "<itemName>BAYERN 1</itemName>" in xml
 
 

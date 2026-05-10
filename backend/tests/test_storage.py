@@ -44,9 +44,9 @@ def test_speaker_config_round_trip(tmp_path, monkeypatch):
     monkeypatch.setattr(storage_module, "CONFIG_PATH", tmp_path / "config.json")
     store = storage_module.AppStorage()
 
-    store.set_speaker_config(SpeakerConfig(host="192.168.1.23", port=8090))
+    store.set_speaker_config(SpeakerConfig(host="192.0.2.23", port=8090))
 
-    assert store.get_speaker_config().host == "192.168.1.23"
+    assert store.get_speaker_config().host == "192.0.2.23"
 
 
 def test_preferences_round_trip(tmp_path, monkeypatch):
