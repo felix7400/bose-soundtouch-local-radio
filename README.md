@@ -184,3 +184,7 @@ scripts/run_dev.sh
 ## Privacy
 
 Do not commit `.env` or `data/config.json`. They may contain local IP addresses, hostnames, blocklists, and speaker configuration. The repository includes only source code, scripts, docs, and reusable station definitions.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
