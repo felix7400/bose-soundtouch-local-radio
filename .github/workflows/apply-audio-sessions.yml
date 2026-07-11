@@ -36,11 +36,7 @@ jobs:
           if 'from .audio_sessions import register_audio_session_routes\n' not in text:
               if import_anchor not in text:
                   raise SystemExit('main.py auth import anchor not found')
-              text = text.replace(
-                  import_anchor,
-                  'from .audio_sessions import register_audio_session_routes\n' + import_anchor,
-                  1,
-              )
+              text = text.replace(import_anchor, 'from .audio_sessions import register_audio_session_routes\n' + import_anchor, 1)
           route_anchor = '\n\nif FRONTEND_DIST.exists():\n'
           route_call = '\n\nregister_audio_session_routes(app, _speaker_client, storage)\n'
           if 'register_audio_session_routes(app, _speaker_client, storage)' not in text:
@@ -55,9 +51,19 @@ jobs:
         run: |
           set -o pipefail
           cd backend
-          pip install -r requirements.txt
-          python -m compileall -q app tests
-          pytest -q
+          {
+            pip install -r requirements.txt
+            python -m compileall -q app tests
+            pytest -q
+          } 2>&1 | tee /tmp/audio-session-tests.log
+
+      - name: Upload test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio-session-tests
+          path: /tmp/audio-session-tests.log
+          if-no-files-found: warn
 
       - name: Commit and push implementation
         run: |
