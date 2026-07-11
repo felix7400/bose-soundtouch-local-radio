@@ -25,11 +25,30 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
-      - name: Apply readable integration patch
+      - name: Integrate audio session routes
         run: |
           set -euo pipefail
-          git apply --check --verbose bootstrap-audio-sessions/main.patch
-          git apply bootstrap-audio-sessions/main.patch
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('backend/app/main.py')
+          text = path.read_text()
+          import_anchor = 'from .auth import OptionalBasicAuthMiddleware\n'
+          if 'from .audio_sessions import register_audio_session_routes\n' not in text:
+              if import_anchor not in text:
+                  raise SystemExit('main.py auth import anchor not found')
+              text = text.replace(
+                  import_anchor,
+                  'from .audio_sessions import register_audio_session_routes\n' + import_anchor,
+                  1,
+              )
+          route_anchor = '\n\nif FRONTEND_DIST.exists():\n'
+          route_call = '\n\nregister_audio_session_routes(app, _speaker_client, storage)\n'
+          if 'register_audio_session_routes(app, _speaker_client, storage)' not in text:
+              if route_anchor not in text:
+                  raise SystemExit('main.py frontend anchor not found')
+              text = text.replace(route_anchor, route_call + route_anchor, 1)
+          path.write_text(text)
+          PY
           rm -rf bootstrap-audio-sessions
 
       - name: Install and test backend
