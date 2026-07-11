@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .audio_sessions import register_audio_session_routes
 from .auth import OptionalBasicAuthMiddleware
 from .config import FRONTEND_DIST, settings
 from .discovery import discover_soundtouch_devices, is_blocked_host, probe_soundtouch_host
@@ -376,6 +377,9 @@ def _local_ips() -> List[str]:
     except OSError:
         pass
     return sorted(addresses)
+
+
+register_audio_session_routes(app, _speaker_client, storage)
 
 
 if FRONTEND_DIST.exists():
