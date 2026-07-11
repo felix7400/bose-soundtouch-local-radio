@@ -1,0 +1,20 @@
+diff --git a/backend/app/main.py b/backend/app/main.py
+index 3c31edb..d51b4d0 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse
+ from fastapi.staticfiles import StaticFiles
+ 
++from .audio_sessions import register_audio_session_routes
+ from .auth import OptionalBasicAuthMiddleware
+ from .config import FRONTEND_DIST, settings
+ from .discovery import discover_soundtouch_devices, is_blocked_host, probe_soundtouch_host
+@@ -379,6 +380,9 @@ def _local_ips() -> List[str]:
+     return sorted(addresses)
+ 
+ 
++register_audio_session_routes(app, _speaker_client, storage)
++
++
+ if FRONTEND_DIST.exists():
+     app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
