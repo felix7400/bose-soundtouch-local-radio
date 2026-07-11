@@ -54,7 +54,7 @@ jobs:
           {
             pip install -r requirements.txt
             python -m compileall -q app tests
-            pytest -q
+            PYTHONPATH=. pytest -q
           } 2>&1 | tee /tmp/audio-session-tests.log
 
       - name: Upload test diagnostics
