@@ -1,0 +1,72 @@
+name: Temporary Provenance release from chunks
+on:
+  push:
+    branches:
+      - support/provenance-data-bridge-20260920
+permissions:
+  contents: write
+  actions: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Reconstruct verified ZIP from chunk artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p parts wrappers
+          ids=(
+            10604066834
+            10603862201
+            10604301573
+            10604616078
+            10604850593
+            10603714951
+            10603714955
+            10604820675
+            10604431363
+            10604616096
+            10604775850
+          )
+          for i in $(seq 0 10); do
+            n=$(printf '%02d' "$i")
+            id="${ids[$i]}"
+            curl -L --fail --retry 5 --connect-timeout 30 --max-time 1800 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -o "wrappers/$n.zip" \
+              "https://api.github.com/repos/felix7400/bose-soundtouch-local-radio/actions/artifacts/$id/zip"
+            unzip -q "wrappers/$n.zip" -d parts
+          done
+
+          cat parts/provenance-v21-public-data-20260920.zip.part-* > provenance-v21-public-data-20260920.zip
+          test "$(stat -c %s provenance-v21-public-data-20260920.zip)" = "4927874568"
+          echo "739d0df53a5efff31e55db200c4624bca4c938e1d5e031079bab12917a90ad10  provenance-v21-public-data-20260920.zip" | sha256sum -c -
+          unzip -t provenance-v21-public-data-20260920.zip >/dev/null
+          mkdir unpack
+          unzip -q provenance-v21-public-data-20260920.zip -d unpack
+          cd unpack
+          echo "af2be47f7477cf32fa6e4bec1c6a4868  NadigOConner2024_hepg2.h5ad" | md5sum -c -
+          echo "d8b05d00bfbd686d37ffdd4293bc6c8c  NadigOConner2024_jurkat.h5ad" | md5sum -c -
+          echo "d8cba17576d1a8afc0f7d71b79cad0f7  ReplogleWeissman2022_K562_essential.h5ad" | md5sum -c -
+          echo "cc7f1ec50aeb3a3e1b4a6cfa713d80fa  ReplogleWeissman2022_rpe1.h5ad" | md5sum -c -
+
+      - name: Publish temporary release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="provenance-data-bridge-20260920"
+          gh release delete "$TAG" --repo "${GITHUB_REPOSITORY}" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" --repo "${GITHUB_REPOSITORY}" --target "${GITHUB_SHA}" --title "Temporary Provenance public data bridge" --notes "Temporary bridge for public scPerturb benchmark data. Delete after sandbox transfer."
+          gh release upload "$TAG" --repo "${GITHUB_REPOSITORY}" \
+            unpack/ReplogleWeissman2022_K562_essential.h5ad \
+            unpack/ReplogleWeissman2022_rpe1.h5ad \
+            unpack/NadigOConner2024_hepg2.h5ad \
+            unpack/NadigOConner2024_jurkat.h5ad \
+            unpack/MANIFEST.txt
+          gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" --json url,assets
