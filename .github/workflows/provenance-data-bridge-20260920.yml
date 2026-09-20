@@ -10,16 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Download verified public data ZIP
+      - name: Resolve and download verified public data ZIP
         shell: bash
         run: |
           set -euo pipefail
-          URL="https://store9.gofile.io/download/web/4c6a66d2-bd00-4a18-9ff7-680ec8c8cd3f/provenance-v21-public-data-20260920.zip"
           OUT="provenance-v21-public-data-20260920.zip"
-          curl -L --fail --retry 8 --retry-delay 5 --connect-timeout 30 --max-time 7200 -o "$OUT" "$URL"
+
+          TOKEN="$(curl -fsS -X POST https://api.gofile.io/accounts | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["data"]["token"])')"
+          WT="$(curl -fsS https://gofile.io/dist/js/global.js | python3 -c 'import sys; s=sys.stdin.read(); print(s.split("appdata.wt = \"")[1].split("\"")[0])')"
+          META="$(curl -fsS -H "Authorization: Bearer $TOKEN" "https://api.gofile.io/contents/uIJyLUaX?wt=$WT&cache=true&password=")"
+          LINK="$(printf '%s' "$META" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["status"]=="ok",d; ch=d["data"]["children"]; xs=[v for v in ch.values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; assert len(xs)==1,(len(xs),ch.keys()); print(xs[0]["link"])')"
+          SIZE="$(printf '%s' "$META" | python3 -c 'import json,sys; d=json.load(sys.stdin); ch=d["data"]["children"]; xs=[v for v in ch.values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; print(xs[0]["size"])')"
+          echo "Resolved public file size: $SIZE"
+
+          curl -L --fail --retry 8 --retry-delay 5 --connect-timeout 30 --max-time 7200 -o "$OUT" "$LINK"
+          test "$(stat -c %s "$OUT")" = "4927874568"
           echo "739d0df53a5efff31e55db200c4624bca4c938e1d5e031079bab12917a90ad10  $OUT" | sha256sum -c -
           unzip -t "$OUT" >/dev/null
           stat -c '%n %s bytes' "$OUT"
+
       - name: Upload one-day bridge artifact
         uses: actions/upload-artifact@v4
         with:
