@@ -1,0 +1,30 @@
+name: Temporary Provenance data bridge
+on:
+  push:
+    branches:
+      - support/provenance-data-bridge-20260920
+permissions:
+  contents: read
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Download verified public data ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://store9.gofile.io/download/direct/4c6a66d2-bd00-4a18-9ff7-680ec8c8cd3f/provenance-v21-public-data-20260920.zip"
+          OUT="provenance-v21-public-data-20260920.zip"
+          curl -L --fail --retry 8 --retry-delay 5 --connect-timeout 30 --max-time 7200 -o "$OUT" "$URL"
+          echo "739d0df53a5efff31e55db200c4624bca4c938e1d5e031079bab12917a90ad10  $OUT" | sha256sum -c -
+          unzip -t "$OUT" >/dev/null
+          stat -c '%n %s bytes' "$OUT"
+      - name: Upload one-day bridge artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance-v21-public-data-20260920
+          path: provenance-v21-public-data-20260920.zip
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
