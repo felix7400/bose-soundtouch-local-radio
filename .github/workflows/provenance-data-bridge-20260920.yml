@@ -15,15 +15,37 @@ jobs:
         run: |
           set -euo pipefail
           OUT="provenance-v21-public-data-20260920.zip"
+          UA="Mozilla/5.0"
+          LANG="en-US"
 
-          TOKEN="$(curl -fsS -X POST https://api.gofile.io/accounts | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["data"]["token"])')"
-          WT="$(curl -fsS https://gofile.io/dist/js/global.js | python3 -c 'import sys; s=sys.stdin.read(); print(s.split("appdata.wt = \"")[1].split("\"")[0])')"
-          META="$(curl -fsS -H "Authorization: Bearer $TOKEN" "https://api.gofile.io/contents/uIJyLUaX?wt=$WT&cache=true&password=")"
-          LINK="$(printf '%s' "$META" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["status"]=="ok",d; ch=d["data"]["children"]; xs=[v for v in ch.values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; assert len(xs)==1,(len(xs),ch.keys()); print(xs[0]["link"])')"
-          SIZE="$(printf '%s' "$META" | python3 -c 'import json,sys; d=json.load(sys.stdin); ch=d["data"]["children"]; xs=[v for v in ch.values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; print(xs[0]["size"])')"
+          curl -fsS -A "$UA" -X POST https://api.gofile.io/accounts > /tmp/gofile-account.json
+          TOKEN="$(python3 -c 'import json; print(json.load(open("/tmp/gofile-account.json"))["data"]["token"])')"
+          curl -fsS -A "$UA" https://gofile.io/js/wt.obf.js -o /tmp/wt.obf.js
+
+          WT="$(TOKEN="$TOKEN" node - <<'JS'
+const fs=require('fs');
+Object.defineProperty(globalThis,'navigator',{value:{
+  userAgent:'Mozilla/5.0',
+  language:'en-US',
+  platform:'Linux x86_64',
+  hardwareConcurrency:8
+}, configurable:true});
+const src=fs.readFileSync('/tmp/wt.obf.js','utf8');
+eval(src);
+process.stdout.write(generateWT(process.env.TOKEN));
+JS
+)"
+
+          API="https://api.gofile.io/contents/uIJyLUaX?page=1&pageSize=100&sortField=createTime&sortDirection=-1"
+          curl -fsS -A "$UA"             -H "Authorization: Bearer $TOKEN"             -H "X-Website-Token: $WT"             -H "X-BL: $LANG"             "$API" > /tmp/gofile-meta.json
+
+          LINK="$(python3 -c 'import json; d=json.load(open("/tmp/gofile-meta.json")); assert d["status"]=="ok",d; xs=[v for v in d["data"]["children"].values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; assert len(xs)==1,len(xs); print(xs[0]["link"])')"
+          SIZE="$(python3 -c 'import json; d=json.load(open("/tmp/gofile-meta.json")); xs=[v for v in d["data"]["children"].values() if v.get("name")=="provenance-v21-public-data-20260920.zip"]; print(xs[0]["size"])')"
           echo "Resolved public file size: $SIZE"
+          test "$SIZE" = "4927874568"
 
-          curl -L --fail --retry 8 --retry-delay 5 --connect-timeout 30 --max-time 7200 -o "$OUT" "$LINK"
+          curl -L --fail --retry 8 --retry-delay 5 --connect-timeout 30 --max-time 7200             -A "$UA"             -H "Authorization: Bearer $TOKEN"             -H "X-Website-Token: $WT"             -H "X-BL: $LANG"             -o "$OUT" "$LINK"
+
           test "$(stat -c %s "$OUT")" = "4927874568"
           echo "739d0df53a5efff31e55db200c4624bca4c938e1d5e031079bab12917a90ad10  $OUT" | sha256sum -c -
           unzip -t "$OUT" >/dev/null
